@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  uid        String     @id @unique @default(uuid()) @db.Uuid
+  name       String     @unique @db.VarChar(255)
+  password   String     @db.VarChar(255)
+  avatar     Bytes?     @db.ByteA
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Date
+  categories Category[]
+}
+
+model Category {
+  uid     String         @id @unique @default(uuid()) @db.Uuid
+  name    String         @db.VarChar(255)
+  icon    String?        @db.VarChar(255)
+  items   CategoryItem[]
+  user    User           @relation(fields: [userUid], references: [uid], onDelete: Cascade, onUpdate: Cascade)
+  userUid String         @map("user_uid") @db.Uuid
+}
+
+model CategoryItem {
+  uid         String   @unique @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?  @db.VarChar(255)
+  image       Bytes?   @db.ByteA
+  createdAt   DateTime @default(now()) @map("created_at") @db.Date
+  category    Category @relation(fields: [categoryUid], references: [uid], onDelete: Cascade, onUpdate: Cascade)
+  categoryUid String   @map("category_uid") @db.Uuid
+}
